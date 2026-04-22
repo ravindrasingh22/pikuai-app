@@ -1,5 +1,5 @@
-import React from "react";
-import { Image, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, Image, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { pikuImages } from "../../assets/brand";
 import { colors, layout, radius, shadows, spacing, typography } from "../../theme/tokens";
 import type { AppRoute, Navigate } from "../../navigation/types";
@@ -11,12 +11,13 @@ type NavItem = {
 };
 
 const parentNavItems: NavItem[] = [
-  { route: "dashboard", icon: "H", label: "Dashboard" },
-  { route: "children", icon: "C", label: "Children" },
-  { route: "transcripts", icon: "T", label: "Chats" },
-  { route: "safety", icon: "S", label: "Permissions / Safety" },
-  { route: "reports", icon: "R", label: "Activity / Reports" },
-  { route: "settings", icon: "P", label: "Profile" }
+  { route: "dashboard", icon: "⌂", label: "Dashboard" },
+  { route: "children", icon: "👧", label: "Children" },
+  { route: "childPicker", icon: "💬", label: "New Chat" },
+  { route: "transcripts", icon: "🗨️", label: "My Chats" },
+  { route: "safety", icon: "🔐", label: "Safety" },
+  { route: "reports", icon: "📊", label: "Reports" },
+  { route: "settings", icon: "⚙️", label: "Profile" }
 ];
 
 const bottomNavItems: NavItem[] = [
@@ -33,6 +34,7 @@ type AppScaffoldProps = {
   children: React.ReactNode;
   navigate: Navigate;
   onBack?: () => void;
+  onLogout?: () => void;
   title?: string;
   subtitle?: string;
   scroll?: boolean;
@@ -45,6 +47,7 @@ export function AppScaffold({
   children,
   navigate,
   onBack,
+  onLogout,
   title,
   subtitle,
   scroll = true,
@@ -54,6 +57,12 @@ export function AppScaffold({
   const isTablet = width >= layout.tabletBreakpoint;
   const topInset = Platform.OS === "android" ? StatusBar.currentHeight ?? 0 : 54;
   const bottomInset = Platform.OS === "ios" ? 24 : 0;
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navigateFromMenu = (nextRoute: AppRoute) => {
+    setMobileMenuOpen(false);
+    navigate(nextRoute);
+  };
 
   if (!showParentChrome) {
     return <View style={styles.fullScreen}>{children}</View>;
@@ -69,13 +78,22 @@ export function AppScaffold({
                 <Text style={styles.backIcon}>‹</Text>
               </Pressable>
             ) : !isTablet ? (
-              <Pressable accessibilityLabel="Open navigation" accessibilityRole="button" onPress={() => navigate("dashboard")} style={styles.menuButton}>
+              <Pressable accessibilityLabel="Open navigation" accessibilityRole="button" onPress={() => setMobileMenuOpen((open) => !open)} style={styles.menuButton}>
                 <Text style={styles.menuIcon}>☰</Text>
               </Pressable>
             ) : null}
             <View style={styles.titleBlock}>
               {subtitle && isTablet ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-              <Text style={[styles.title, !isTablet && styles.phoneTitle]}>{title}</Text>
+              {!isTablet ? (
+                <View style={styles.phoneTitleRow}>
+                  <Pressable accessibilityLabel="Go to welcome" accessibilityRole="button" onPress={() => navigate("welcome", { resetHistory: true })}>
+                    <Image source={pikuImages.icon} style={styles.phoneHeaderLogo} resizeMode="contain" />
+                  </Pressable>
+                  <Text style={[styles.title, styles.phoneTitle]}>{title}</Text>
+                </View>
+              ) : (
+                <Text style={styles.title}>{title}</Text>
+              )}
             </View>
           </View>
           <Pressable accessibilityLabel="Open settings" accessibilityRole="button" style={[styles.notification, !isTablet && styles.phoneMenu]} onPress={() => navigate("settings")}>
@@ -89,20 +107,80 @@ export function AppScaffold({
 
   return (
     <View style={[styles.root, !isTablet && styles.phoneRoot]}>
-      {isTablet ? <Sidebar activeRoute={activeRoute} navigate={navigate} /> : null}
+      {isTablet ? <Sidebar activeRoute={activeRoute} navigate={navigate} onLogout={onLogout} /> : null}
       {scroll ? <ScrollView contentContainerStyle={[styles.scroll, !isTablet && styles.phoneScroll]}>{content}</ScrollView> : content}
+      {!isTablet ? <MobileMenu activeRoute={activeRoute} open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} topInset={topInset} navigate={navigateFromMenu} /> : null}
       {!isTablet ? <BottomNav activeRoute={activeRoute} bottomInset={bottomInset} navigate={navigate} /> : null}
     </View>
   );
 }
 
-function Sidebar({ activeRoute, navigate }: { activeRoute: AppRoute; navigate: Navigate }): React.JSX.Element {
+function MobileMenu({
+  activeRoute,
+  navigate,
+  onClose,
+  open,
+  topInset
+}: {
+  activeRoute: AppRoute;
+  navigate: (route: AppRoute) => void;
+  onClose: () => void;
+  open: boolean;
+  topInset: number;
+}): React.JSX.Element | null {
+  const slide = useRef(new Animated.Value(-300)).current;
+  const [mounted, setMounted] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      Animated.timing(slide, {
+        duration: 220,
+        toValue: 0,
+        useNativeDriver: true
+      }).start();
+      return;
+    }
+    Animated.timing(slide, {
+      duration: 180,
+      toValue: -300,
+      useNativeDriver: true
+    }).start(({ finished }) => {
+      if (finished) setMounted(false);
+    });
+  }, [open, slide]);
+
+  if (!mounted) return null;
+
+  return (
+    <View pointerEvents={open ? "auto" : "none"} style={styles.mobileMenuLayer}>
+      <Pressable accessibilityLabel="Close navigation" accessibilityRole="button" onPress={onClose} style={styles.mobileMenuScrim} />
+      <Animated.View style={[styles.mobileMenu, { paddingTop: topInset + spacing.sm, transform: [{ translateX: slide }] }]}>
+        <View style={styles.mobileMenuBrandRow}>
+          <Image source={pikuImages.icon} style={styles.mobileMenuLogo} />
+          <Text style={styles.mobileMenuBrand}>PikuAI</Text>
+        </View>
+        {parentNavItems.map((item) => {
+          const active = activeRoute === item.route;
+          return (
+            <Pressable key={item.route} accessibilityRole="button" accessibilityState={{ selected: active }} onPress={() => navigate(item.route)} style={[styles.mobileMenuItem, active && styles.mobileMenuItemActive]}>
+              <Text style={[styles.mobileMenuIcon, active && styles.mobileMenuTextActive]}>{item.icon}</Text>
+              <Text style={[styles.mobileMenuLabel, active && styles.mobileMenuTextActive]}>{item.label}</Text>
+            </Pressable>
+          );
+        })}
+      </Animated.View>
+    </View>
+  );
+}
+
+function Sidebar({ activeRoute, navigate, onLogout }: { activeRoute: AppRoute; navigate: Navigate; onLogout?: () => void }): React.JSX.Element {
   return (
     <View style={styles.sidebar}>
-      <View style={styles.brandRow}>
+      <Pressable accessibilityLabel="Go to welcome" accessibilityRole="button" onPress={() => navigate("welcome", { resetHistory: true })} style={styles.brandRow}>
         <Image source={pikuImages.icon} style={styles.brandIcon} />
         <Text style={styles.brandText}>PikuAI</Text>
-      </View>
+      </Pressable>
       <View style={styles.sidebarItems}>
         {parentNavItems.map((item) => {
           const active = activeRoute === item.route;
@@ -114,7 +192,7 @@ function Sidebar({ activeRoute, navigate }: { activeRoute: AppRoute; navigate: N
           );
         })}
       </View>
-      <Pressable onPress={() => navigate("welcome", { resetHistory: true })} style={styles.logout}>
+      <Pressable onPress={onLogout ?? (() => navigate("welcome", { resetHistory: true }))} style={styles.logout}>
         <Text style={styles.logoutText}>Logout</Text>
       </Pressable>
       <View style={styles.encouragement}>
@@ -303,10 +381,10 @@ const styles = StyleSheet.create({
   },
   navIcon: {
     color: colors.textMuted,
-    fontSize: 16,
-    fontWeight: "900",
+    fontSize: 14,
+    fontWeight: "800",
     textAlign: "center",
-    width: 22
+    width: 24
   },
   notification: {
     alignItems: "center",
@@ -356,10 +434,86 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     lineHeight: 28
   },
+  mobileMenu: {
+    backgroundColor: colors.surface,
+    gap: spacing.xs,
+    height: "100%",
+    left: 0,
+    paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.sm,
+    position: "absolute",
+    top: 0,
+    width: 270,
+    ...shadows.card
+  },
+  mobileMenuBrand: {
+    color: colors.brandPurple,
+    fontSize: 19,
+    fontWeight: "900"
+  },
+  mobileMenuBrandRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.xs
+  },
+  mobileMenuIcon: {
+    color: colors.textMuted,
+    fontSize: 15,
+    fontWeight: "800",
+    textAlign: "center",
+    width: 26
+  },
+  mobileMenuItem: {
+    alignItems: "center",
+    borderRadius: radius.md,
+    flexDirection: "row",
+    gap: spacing.xs,
+    minHeight: 40,
+    paddingHorizontal: spacing.sm
+  },
+  mobileMenuItemActive: {
+    backgroundColor: colors.brandBlue
+  },
+  mobileMenuLabel: {
+    color: colors.textSoft,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 16
+  },
+  mobileMenuLayer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 40
+  },
+  mobileMenuLogo: {
+    borderRadius: 10,
+    height: 34,
+    width: 34
+  },
+  mobileMenuScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(32,33,63,0.24)"
+  },
+  mobileMenuTextActive: {
+    color: colors.surface
+  },
   phoneTitle: {
     fontSize: 22,
     lineHeight: 28,
     textAlign: "left"
+  },
+  phoneHeaderLogo: {
+    borderRadius: 8,
+    height: 30,
+    width: 30
+  },
+  phoneTitleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.xs,
+    minWidth: 0
   },
   root: {
     backgroundColor: colors.screen,
@@ -380,17 +534,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: radius.md,
     flexDirection: "row",
-    gap: spacing.sm,
-    minHeight: 48,
+    gap: spacing.xs,
+    minHeight: 42,
     paddingHorizontal: spacing.sm
   },
   sidebarItems: {
     gap: spacing.xs
   },
   sidebarLabel: {
-    ...typography.body,
     color: colors.textSoft,
-    fontWeight: "800"
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 16
   },
   subtitle: {
     ...typography.small,

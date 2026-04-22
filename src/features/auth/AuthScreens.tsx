@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { pikuImages } from "../../assets/brand";
 import { loginParent, registerParent, setupParentPin, verifyParentPin } from "../../api/mobileApi";
 import { PikuButton } from "../../components/common/PikuButton";
 import { PikuCard } from "../../components/common/PikuCard";
@@ -31,7 +32,7 @@ export function LoginScreen({
   });
 
   return (
-    <AuthFrame canGoBack={canGoBack} onBack={onBack} title="Welcome back" subtitle="Sign in as the parent to manage profiles, safety, reports and settings.">
+    <AuthFrame canGoBack={canGoBack} navigate={navigate} onBack={onBack} title="Welcome back" subtitle="Sign in as the parent to manage profiles, safety, reports and settings.">
       <PikuTextField label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
       <PikuTextField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
       {login.error ? <Text style={styles.error}>{login.error}</Text> : null}
@@ -53,7 +54,7 @@ export function RegisterScreen({ canGoBack, navigate, onBack }: BackProps & { na
   });
 
   return (
-    <AuthFrame canGoBack={canGoBack} onBack={onBack} title="Parent setup" subtitle="Create the family workspace before children use PikuAI.">
+    <AuthFrame canGoBack={canGoBack} navigate={navigate} onBack={onBack} title="Parent setup" subtitle="Create the family workspace before children use PikuAI.">
       <PikuTextField label="Full name" value={fullName} onChangeText={setFullName} />
       <PikuTextField label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
       <PikuTextField label="Mobile number" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" />
@@ -86,7 +87,7 @@ export function ParentPinSetupScreen({
   });
 
   return (
-    <AuthFrame canGoBack={canGoBack} onBack={onBack} title="Set Parent PIN" subtitle="This PIN protects safety controls, reports, transcripts and billing on shared devices.">
+    <AuthFrame canGoBack={canGoBack} navigate={navigate} onBack={onBack} title="Set Parent PIN" subtitle="This PIN protects safety controls, reports, transcripts and billing on shared devices.">
       <PikuTextField label="Parent PIN" value={pin} onChangeText={setPin} keyboardType="number-pad" secureTextEntry maxLength={4} />
       <PikuTextField label="Confirm PIN" value={confirmPin} onChangeText={setConfirmPin} keyboardType="number-pad" secureTextEntry maxLength={4} />
       {save.error ? <Text style={styles.error}>{save.error}</Text> : null}
@@ -114,7 +115,7 @@ export function ParentPinGateScreen({
   });
 
   return (
-    <AuthFrame canGoBack={Boolean(onBack)} onBack={onBack} title="Parent PIN" subtitle="Enter your PIN to return to the parent dashboard and protected controls.">
+    <AuthFrame canGoBack={Boolean(onBack)} navigate={navigate} onBack={onBack} title="Parent PIN" subtitle="Enter your PIN to return to the parent dashboard and protected controls.">
       <PikuTextField label="Parent PIN" value={pin} onChangeText={setPin} keyboardType="number-pad" secureTextEntry maxLength={4} />
       {verify.error ? <Text style={styles.error}>{verify.error}</Text> : null}
       <PikuButton label="Unlock Parent Area" onPress={() => void verify.run()} loading={verify.loading} />
@@ -124,11 +125,12 @@ export function ParentPinGateScreen({
 
 function AuthFrame({
   canGoBack,
+  navigate,
   onBack,
   title,
   subtitle,
   children
-}: BackProps & { title: string; subtitle: string; children: React.ReactNode }): React.JSX.Element {
+}: BackProps & { navigate: Navigate; title: string; subtitle: string; children: React.ReactNode }): React.JSX.Element {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.frame}>
       <View style={styles.inner}>
@@ -137,6 +139,10 @@ function AuthFrame({
             <Text style={styles.backIcon}>‹</Text>
           </Pressable>
         ) : null}
+        <Pressable accessibilityLabel="Go to welcome" accessibilityRole="button" onPress={() => navigate("welcome", { resetHistory: true })} style={styles.brandRow}>
+          <Image source={pikuImages.icon} style={styles.brandIcon} resizeMode="contain" />
+          <Text style={styles.brandText}>PikuAI</Text>
+        </Pressable>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
         <View style={styles.form}>{children}</View>
@@ -163,6 +169,22 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     lineHeight: 36,
     marginTop: -2
+  },
+  brandIcon: {
+    borderRadius: 12,
+    height: 44,
+    width: 44
+  },
+  brandRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.md
+  },
+  brandText: {
+    color: colors.brandPurple,
+    fontSize: 24,
+    fontWeight: "900"
   },
   error: {
     ...typography.small,

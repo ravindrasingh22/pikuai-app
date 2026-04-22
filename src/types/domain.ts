@@ -16,6 +16,7 @@ export type ChildProfile = {
   daily_time_limit_minutes?: number;
   topic_restrictions_json?: string[];
   voice_enabled?: boolean;
+  avatar_key?: string;
   child_pin_enabled?: boolean;
   active_status?: string;
 };

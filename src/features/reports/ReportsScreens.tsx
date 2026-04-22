@@ -57,8 +57,12 @@ export function TranscriptsScreen({ transcripts, childrenProfiles }: { transcrip
   }, [childrenProfiles, groupedThreads]);
 
   const [collapsedByChild, setCollapsedByChild] = useState<Record<string, boolean>>({});
+  const [collapsedByThread, setCollapsedByThread] = useState<Record<string, boolean>>({});
   const toggleChild = (childId: string): void => {
     setCollapsedByChild((current) => ({ ...current, [childId]: !current[childId] }));
+  };
+  const toggleThread = (threadId: string): void => {
+    setCollapsedByThread((current) => ({ ...current, [threadId]: !current[threadId] }));
   };
 
   return (
@@ -85,16 +89,23 @@ export function TranscriptsScreen({ transcripts, childrenProfiles }: { transcrip
               <View style={styles.threadsWrap}>
                 {threads.map((thread) => (
                   <View key={thread.id} style={styles.threadCard}>
-                    <View style={styles.row}>
-                      <Text style={styles.threadTitle}>{thread.title}</Text>
-                      <Text style={styles.badge}>{thread.last_policy_bucket}</Text>
-                    </View>
-                    {thread.messages.length === 0 ? (
-                      <Text style={styles.body}>No messages in this thread yet.</Text>
-                    ) : (
-                      thread.messages.slice(0, 2).map((message) => (
-                        <Text key={message.id} style={styles.body}>{message.sender_type}: {message.rendered_text}</Text>
-                      ))
+                    <Pressable onPress={() => toggleThread(thread.id)} accessibilityRole="button" style={styles.collapsibleHeader}>
+                      <View style={styles.headerTextWrap}>
+                        <Text style={styles.threadTitle}>{thread.title}</Text>
+                        <Text style={styles.badge}>{thread.last_policy_bucket}</Text>
+                      </View>
+                      <Text style={styles.chevron}>{(collapsedByThread[thread.id] ?? false) ? "▾" : "▴"}</Text>
+                    </Pressable>
+                    {(collapsedByThread[thread.id] ?? false) ? null : (
+                      <View style={styles.messagePreviewWrap}>
+                        {thread.messages.length === 0 ? (
+                          <Text style={styles.body}>No messages in this thread yet.</Text>
+                        ) : (
+                          thread.messages.slice(0, 2).map((message) => (
+                            <Text key={message.id} style={styles.body}>{message.sender_type}: {message.rendered_text}</Text>
+                          ))
+                        )}
+                      </View>
                     )}
                   </View>
                 ))}
@@ -187,6 +198,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     padding: spacing.sm
+  },
+  messagePreviewWrap: {
+    marginTop: spacing.xs
   },
   threadTitle: {
     ...typography.body,

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BackHandler, StyleSheet, Text, View } from "react-native";
+import { api, isAuthExpiredError } from "../api/client";
 import { loadBootstrap, type BootstrapSnapshot } from "../api/mobileApi";
 import { AppScaffold } from "../components/layout/AppScaffold";
 import { EmptyState, LoadingState } from "../components/common/StatusViews";
@@ -33,28 +34,48 @@ export function PikuApp(): React.JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const resetToAuth = useCallback((nextRoute: AppRoute = "login") => {
+    api.clearAuthToken();
+    setSnapshot(null);
+    setSelectedChild(null);
+    setParentAreaLocked(false);
+    setPendingParentRoute("dashboard");
+    setPinGateReturnRoute("childPicker");
+    setHistory([]);
+    setRoute(nextRoute);
+  }, []);
+
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       setSnapshot(await loadBootstrap());
     } catch (caught) {
+      if (isAuthExpiredError(caught)) {
+        resetToAuth("login");
+        setError("Your session expired. Please sign in again.");
+        return;
+      }
       setError(caught instanceof Error ? caught.message : "Could not load backend data.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [resetToAuth]);
 
   useEffect(() => {
+    if (!api.hasAuthToken()) {
+      setLoading(false);
+      return;
+    }
     void refresh();
   }, [refresh]);
 
   const data = useMemo(() => ({
     parent: snapshot?.profile ?? sampleParent,
-    children: snapshot?.children.length ? snapshot.children : sampleChildren,
+    children: snapshot ? snapshot.children : sampleChildren,
     overview: snapshot?.overview ?? sampleOverview,
     controls: snapshot?.controls ?? sampleControls,
-    transcripts: snapshot?.transcripts.length ? snapshot.transcripts : sampleTranscripts,
+    transcripts: snapshot ? snapshot.transcripts : sampleTranscripts,
     reports: snapshot?.reports ?? sampleReports
   }), [snapshot]);
 
@@ -102,6 +123,11 @@ export function PikuApp(): React.JSX.Element {
     });
   }, [parentAreaLocked, route]);
 
+  const logoutParent = useCallback(() => {
+    resetToAuth("welcome");
+    setError(null);
+  }, [resetToAuth]);
+
   useEffect(() => {
     const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
       if (route === "parentPinGate") {
@@ -147,6 +173,7 @@ export function PikuApp(): React.JSX.Element {
     <AppScaffold
       activeRoute={route}
       canGoBack={route !== authorizedDefaultRoute && canGoBack}
+      onLogout={logoutParent}
       navigate={navigate}
       onBack={goBack}
       scroll
@@ -154,7 +181,7 @@ export function PikuApp(): React.JSX.Element {
       subtitle={subtitleForRoute(route)}
       title={titleForRoute(route, data.parent.full_name)}
     >
-      {renderRoute(route, navigate, data, refresh)}
+      {renderRoute(route, navigate, data, refresh, logoutParent)}
       {error ? <Text style={styles.softError}>Using sample data: {error}</Text> : null}
     </AppScaffold>
   );
@@ -171,7 +198,8 @@ function renderRoute(
     transcripts: BootstrapSnapshot["transcripts"];
     reports: NonNullable<BootstrapSnapshot["reports"]>;
   },
-  refresh: () => Promise<void>
+  refresh: () => Promise<void>,
+  logoutParent: () => void
 ): React.ReactNode {
   switch (route) {
     case "familyControls":
@@ -180,7 +208,7 @@ function renderRoute(
     case "dashboard":
       return <ParentDashboardScreen parent={data.parent} overview={data.overview} controls={data.controls} childrenProfiles={data.children} navigate={navigate} />;
     case "children":
-      return <ChildrenListScreen childrenProfiles={data.children} navigate={navigate} />;
+      return <ChildrenListScreen childrenProfiles={data.children} navigate={navigate} onDeleted={refresh} />;
     case "addChild":
       return <AddChildScreen navigate={navigate} onCreated={refresh} />;
     case "childPicker":
@@ -190,7 +218,7 @@ function renderRoute(
     case "transcripts":
       return <TranscriptsScreen transcripts={data.transcripts} childrenProfiles={data.children} />;
     case "settings":
-      return <SettingsScreen parent={data.parent} childrenProfiles={data.children} navigate={navigate} />;
+      return <SettingsScreen parent={data.parent} childrenProfiles={data.children} navigate={navigate} onLogout={logoutParent} />;
     case "parentPinGate":
       return <EmptyState title="Parent PIN required" body="Sensitive parent sections should call the Parent PIN verification endpoint before opening details." />;
     default:

@@ -1,39 +1,40 @@
 import React from "react";
-import { Image, Platform, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Image, Platform, Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { pikuImages } from "../../assets/brand";
 import { colors, radius, shadows } from "../../theme/tokens";
 import type { Navigate } from "../../navigation/types";
 
 export function WelcomeScreen({ navigate }: { navigate: Navigate }): React.JSX.Element {
   const { height, width } = useWindowDimensions();
-  const contentWidth = Math.min(Math.max(width - 48, 342), 560);
+  const contentWidth = Math.min(Math.max(width - 12, 356), 580);
   const scale = Math.min(Math.max(contentWidth / 342, 1), 1.34);
   const tallScale = Math.min(Math.max(height / 844, 0.86), 1.18);
-  const heroHeight = Math.min(300, Math.max(190, 230 * scale * Math.min(tallScale, 1.06)));
-  const familyWidth = Math.min(contentWidth * 0.94, 430);
-  const familyHeight = familyWidth * 0.7;
-  const cardHeight = Math.min(190, 150 * scale);
+  const compactHeight = height < 820;
+  const heroHeight = Math.min(compactHeight ? 202 : 254, Math.max(172, 192 * scale * Math.min(tallScale, 1.02)));
+  const familyWidth = Math.min(contentWidth * (compactHeight ? 0.86 : 0.94), 430);
+  const familyHeight = familyWidth * 0.66;
+  const cardHeight = Math.min(compactHeight ? 140 : 168, (compactHeight ? 132 : 146) * scale);
   const fillLargeScreen = height > 760;
   const topInset = Platform.OS === "android" ? StatusBar.currentHeight ?? 0 : 54;
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.viewport}>
+      <ScrollView bounces contentContainerStyle={styles.viewport} showsVerticalScrollIndicator={false}>
         <View
           style={[
             styles.screen,
             {
-              gap: fillLargeScreen ? Math.max(4, (height - 760) / 18) : 0,
+              gap: fillLargeScreen ? Math.min(8, Math.max(2, (height - 760) / 28)) : 0,
               maxWidth: contentWidth,
-              paddingBottom: Math.max(24, 32 * tallScale),
-              paddingHorizontal: Math.max(24, 30 * scale),
-              paddingTop: topInset + Math.max(8, 10 * tallScale)
+              paddingBottom: Math.max(24, 28 * tallScale),
+              paddingHorizontal: Math.max(10, 14 * scale),
+              paddingTop: Math.round(topInset * 0.6) + Math.max(2, 3 * tallScale)
             }
           ]}
         >
         <View style={styles.brandRow}>
-          <Image source={pikuImages.icon} style={[styles.logo, { borderRadius: 14 * scale, height: 48 * scale, width: 48 * scale }]} />
-          <Text style={[styles.brand, { fontSize: 32 * scale, lineHeight: 38 * scale }]}>PikuAI</Text>
+          <Image resizeMode="contain" source={pikuImages.icon} style={[styles.logo, { borderRadius: 12 * scale, height: 48 * scale, width: 48 * scale }]} />
+          <Text style={[styles.brand, { fontSize: 33 * scale, lineHeight: 39 * scale }]}>PikuAI</Text>
         </View>
 
         <View style={[styles.heroArea, { height: heroHeight }]}>
@@ -52,7 +53,10 @@ export function WelcomeScreen({ navigate }: { navigate: Navigate }): React.JSX.E
         </View>
 
         <View style={styles.copyBlock}>
-          <Text style={[styles.title, { fontSize: 26 * scale, lineHeight: 33 * scale }]}>Welcome, Parents! 👋</Text>
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, { fontSize: 25 * scale, lineHeight: 31 * scale }]}>Welcome, Parents!</Text>
+            <WavingHand scale={scale} />
+          </View>
           <Text style={[styles.subtitle, { fontSize: 14.5 * scale, lineHeight: 22.5 * scale }]}>PikuAI is a safe space where kids can{"\n"}ask, learn and explore with confidence.</Text>
         </View>
 
@@ -60,7 +64,7 @@ export function WelcomeScreen({ navigate }: { navigate: Navigate }): React.JSX.E
           <View style={styles.sparkleTop} />
           <View style={styles.sparkleMid} />
           <View style={styles.sparkleSmall} />
-          <Text style={[styles.featureTitle, { fontSize: 18 * scale, lineHeight: 24 * scale, maxWidth: 200 * scale }]}>Voice and text chat{"\n"}for your curious kids</Text>
+          <Text style={[styles.featureTitle, { fontSize: 18 * scale, lineHeight: 24 * scale, maxWidth: 210 * scale }]}>Safe Voice and Text{"\n"}chat for your kids</Text>
           <View style={styles.iconRow}>
             <View style={[styles.circleIcon, { height: 52 * scale, width: 52 * scale }]}>
               <View style={styles.micHead} />
@@ -94,8 +98,20 @@ export function WelcomeScreen({ navigate }: { navigate: Navigate }): React.JSX.E
           </Text>
         </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function WavingHand({ scale }: { scale: number }): React.JSX.Element {
+  return (
+    <View style={[styles.waveIcon, { height: 28 * scale, width: 28 * scale }]}>
+      <View style={[styles.waveFinger, styles.waveFingerOne, { transform: [{ scale }] }]} />
+      <View style={[styles.waveFinger, styles.waveFingerTwo, { transform: [{ scale }] }]} />
+      <View style={[styles.waveFinger, styles.waveFingerThree, { transform: [{ scale }] }]} />
+      <View style={[styles.wavePalm, { transform: [{ rotate: "-16deg" }, { scale }] }]} />
+      <View style={[styles.waveThumb, { transform: [{ rotate: "34deg" }, { scale }] }]} />
+    </View>
   );
 }
 
@@ -114,10 +130,10 @@ const styles = StyleSheet.create({
   brandRow: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 10,
+    gap: 2,
     justifyContent: "center",
-    marginBottom: 4,
-    marginTop: 14
+    marginBottom: 6,
+    marginTop: 0
   },
   chatBubble: {
     alignItems: "center",
@@ -199,7 +215,7 @@ const styles = StyleSheet.create({
   },
   copyBlock: {
     alignItems: "center",
-    marginTop: 10
+    marginTop: 8
   },
   dot: {
     backgroundColor: "#b8b0e0",
@@ -212,7 +228,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 7,
     justifyContent: "center",
-    marginTop: 20
+    marginTop: 12
   },
   family: {
     bottom: 0,
@@ -225,7 +241,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd8f8",
     borderRadius: 22,
     height: 150,
-    marginTop: 18,
+    marginTop: 12,
     overflow: "visible",
     paddingHorizontal: 20,
     paddingTop: 20,
@@ -240,8 +256,9 @@ const styles = StyleSheet.create({
   },
   footerButton: {
     alignItems: "center",
-    marginTop: 16,
-    paddingVertical: 8
+    marginTop: 10,
+    paddingBottom: 8,
+    paddingTop: 4
   },
   footerText: {
     color: "#666688",
@@ -259,10 +276,10 @@ const styles = StyleSheet.create({
   iconRow: {
     flexDirection: "row",
     gap: 12,
-    marginTop: 14
+    marginTop: 10
   },
   logo: {
-    borderRadius: 14,
+    borderRadius: 12,
     height: 48,
     width: 48
   },
@@ -293,7 +310,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     height: 58,
     justifyContent: "center",
-    marginTop: 22,
+    marginTop: 14,
     width: "100%",
     ...shadows.card
   },
@@ -370,7 +387,7 @@ const styles = StyleSheet.create({
     fontSize: 14.5,
     fontWeight: "600",
     lineHeight: 22.5,
-    marginTop: 6,
+    marginTop: 4,
     paddingHorizontal: 10,
     textAlign: "center"
   },
@@ -382,11 +399,66 @@ const styles = StyleSheet.create({
     lineHeight: 33,
     textAlign: "center"
   },
+  titleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6,
+    justifyContent: "center"
+  },
   viewport: {
     alignItems: "center",
     backgroundColor: "#ece9ff",
-    flex: 1,
-    justifyContent: "center",
+    flexGrow: 1,
+    justifyContent: "flex-start",
+    minHeight: "100%",
     width: "100%"
+  },
+  waveIcon: {
+    height: 28,
+    position: "relative",
+    width: 28
+  },
+  waveFinger: {
+    backgroundColor: "#ffd45a",
+    borderColor: "#d28b21",
+    borderRadius: 6,
+    borderWidth: 1,
+    height: 15,
+    position: "absolute",
+    top: 1,
+    width: 6
+  },
+  waveFingerOne: {
+    left: 5
+  },
+  waveFingerThree: {
+    left: 15
+  },
+  waveFingerTwo: {
+    height: 17,
+    left: 10,
+    top: 0
+  },
+  wavePalm: {
+    backgroundColor: "#ffd45a",
+    borderColor: "#d28b21",
+    borderRadius: 9,
+    borderWidth: 1,
+    height: 17,
+    left: 6,
+    position: "absolute",
+    top: 10,
+    width: 17
+  },
+  waveThumb: {
+    backgroundColor: "#ffd45a",
+    borderColor: "#d28b21",
+    borderRadius: 6,
+    borderWidth: 1,
+    height: 7,
+    left: 2,
+    position: "absolute",
+    top: 14,
+    width: 13
   }
 });

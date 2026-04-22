@@ -7,10 +7,11 @@ import { colors, spacing, typography } from "../../theme/tokens";
 import type { ChildProfile, ParentProfile } from "../../types/domain";
 import type { Navigate } from "../../navigation/types";
 
-export function SettingsScreen({ parent, childrenProfiles, navigate }: {
+export function SettingsScreen({ parent, childrenProfiles, navigate, onLogout }: {
   parent: ParentProfile;
   childrenProfiles: ChildProfile[];
   navigate: Navigate;
+  onLogout: () => void;
 }): React.JSX.Element {
   return (
     <View style={styles.wrap}>
@@ -24,7 +25,7 @@ export function SettingsScreen({ parent, childrenProfiles, navigate }: {
       <PikuCard>
         <Text style={styles.sectionTitle}>Voice Settings</Text>
         <Text style={styles.body}>Voice mode, speech playback, transcript visibility and read-aloud responses are parent-managed.</Text>
-        <View style={styles.settingRow}><Text style={styles.body}>Voice profiles enabled</Text><Text style={styles.value}>{childrenProfiles.filter((child) => child.voice_enabled).length}</Text></View>
+        <View style={styles.settingRow}><Text style={styles.body}>Voice profiles enabled</Text><Text style={styles.value}>{childrenProfiles.filter((child) => child.voice_enabled !== false).length}</Text></View>
         <View style={styles.settingRow}><Text style={styles.body}>Parent PIN</Text><Text style={styles.value}>{parent.pin_enabled ? "Enabled" : "Not set"}</Text></View>
         <View style={styles.settingRow}><Text style={styles.body}>2FA</Text><Text style={styles.value}>{parent.two_factor_enabled ? "Enabled" : "Recommended"}</Text></View>
       </PikuCard>
@@ -33,6 +34,7 @@ export function SettingsScreen({ parent, childrenProfiles, navigate }: {
         <Text style={styles.body}>No child-data training by default. Parents control retention, visibility and optional personalization.</Text>
       </PikuCard>
       <PikuButton label="Open Child Mode" onPress={() => navigate("childPicker")} />
+      <PikuButton label="Logout" onPress={onLogout} variant="ghost" />
     </View>
   );
 }

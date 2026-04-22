@@ -1,4 +1,4 @@
-import { api } from "./client";
+import { api, isAuthExpiredError } from "./client";
 import type { ChildProfile, Controls, DashboardOverview, ParentProfile, ReportSummary, TranscriptThread } from "../types/domain";
 
 export type RegisterParentInput = {
@@ -37,6 +37,10 @@ export async function loadBootstrap(): Promise<BootstrapSnapshot> {
     api.get<TranscriptThread[]>("/transcripts"),
     api.get<ReportSummary>("/reports/summary")
   ]);
+
+  if (profile.status === "rejected" && isAuthExpiredError(profile.reason)) {
+    throw profile.reason;
+  }
 
   return {
     profile: profile.status === "fulfilled" ? profile.value : null,
@@ -83,12 +87,20 @@ export function createChildProfile(input: {
   displayName: string;
   ageBand: string;
   dailyTimeLimitMinutes: number;
+  avatarKey?: string;
+  voiceEnabled?: boolean;
 }): Promise<ChildProfile> {
   return api.post("/children", {
     display_name: input.displayName.trim(),
     age_band: input.ageBand,
-    daily_time_limit_minutes: input.dailyTimeLimitMinutes
+    daily_time_limit_minutes: input.dailyTimeLimitMinutes,
+    avatar_key: input.avatarKey ?? "kid",
+    voice_enabled: input.voiceEnabled ?? true
   });
+}
+
+export function deleteChildProfile(childId: string, deleteChats: boolean): Promise<{ child: ChildProfile; chats_deleted: boolean }> {
+  return api.delete(`/children/${childId}?delete_chats=${deleteChats ? "true" : "false"}`);
 }
 
 export function updateControls(input: Partial<Controls>): Promise<Controls> {

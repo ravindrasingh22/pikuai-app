@@ -39,7 +39,7 @@ export function ParentDashboardScreen({ parent, overview, controls, childrenProf
       <View style={[styles.statGrid, isTablet && styles.tabletStatsGrid]}>
         <StatCard compact={isPhone} label="Children" value={String(childrenProfiles.length || overview.child_count)} detail="Active profiles" icon="C" tone="blue" />
         <StatCard compact={isPhone} label="Chats Today" value={String(overview.weekly_sessions)} detail="+25% vs yesterday" icon="M" tone="green" />
-        <StatCard compact={isPhone} label="Voice Messages" value={childrenProfiles.filter((child) => child.voice_enabled).length.toString()} detail="+16% vs yesterday" icon="V" tone="purple" />
+        <StatCard compact={isPhone} label="Voice Messages" value={childrenProfiles.filter((child) => child.voice_enabled !== false).length.toString()} detail="+16% vs yesterday" icon="V" tone="purple" />
         <StatCard compact={isPhone} label="Safe Interactions" value={`${Math.round(((safeTotal - overview.pending_alerts) / safeTotal) * 100)}%`} detail="Excellent" icon="S" tone="green" />
       </View>
 
@@ -53,7 +53,7 @@ export function ParentDashboardScreen({ parent, overview, controls, childrenProf
             const child = childrenProfiles[index % Math.max(1, childrenProfiles.length)];
             return (
               <View key={activity.id} style={styles.activityRow}>
-                <Avatar name={child?.display_name ?? "Piku"} size={46} />
+                <Avatar avatarKey={child?.avatar_key} name={child?.display_name ?? "Piku"} size={46} />
                 <View style={styles.activityCopy}>
                   <Text style={styles.activityName}>{child?.display_name ?? "Piku"}</Text>
                   <Text style={styles.activityText}>{activity.title}</Text>
