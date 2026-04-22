@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PikuAI – Welcome Screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #d8d4f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    padding: 40px 16px;
+  }
+
+  /* ── Phone Shell ── */
+  .phone {
+    width: 390px;
+    min-height: 844px;
+    background: #ece9ff;
+    border-radius: 54px;
+    box-shadow:
+      0 0 0 10px #1a1a2e,
+      0 0 0 12px #2a2a4e,
+      0 40px 80px rgba(0,0,0,.45);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Dynamic Island */
+  .island {
+    width: 120px; height: 34px;
+    background: #111;
+    border-radius: 20px;
+    position: absolute;
+    top: 14px; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  /* Status bar */
+  .status-bar {
+    width: 100%;
+    padding: 16px 28px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a2e;
+    z-index: 5;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 800; }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+  .status-icons svg { fill: #1a1a2e; }
+
+  /* ── Screen Content ── */
+  .screen {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 24px 32px;
+    gap: 0;
+  }
+
+  /* Logo row */
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    margin-bottom: 4px;
+  }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(145deg, #a78bfa, #6d28d9);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(109,40,217,.35);
+    font-size: 26px;
+    line-height: 1;
+  }
+  .logo-text {
+    font-size: 32px;
+    font-weight: 900;
+    color: #6d28d9;
+    letter-spacing: -0.5px;
+  }
+
+  /* Hero illustration area */
+  .hero-area {
+    width: 100%;
+    height: 230px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin-bottom: -6px;
+  }
+
+  /* Cloud decorations */
+  .cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.85;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+  .cloud-l {
+    width: 70px; height: 22px;
+    top: 28px; left: 14px;
+  }
+  .cloud-l::before { width: 30px; height: 30px; top: -14px; left: 10px; }
+  .cloud-l::after  { width: 22px; height: 22px; top: -10px; left: 28px; }
+  .cloud-r {
+    width: 55px; height: 18px;
+    top: 18px; right: 20px;
+  }
+  .cloud-r::before { width: 24px; height: 24px; top: -12px; left: 8px; }
+  .cloud-r::after  { width: 18px; height: 18px; top: -8px;  left: 22px; }
+
+  /* Stars */
+  .star {
+    position: absolute;
+    font-size: 22px;
+    animation: twinkle 2.5s ease-in-out infinite alternate;
+  }
+  .star-1 { top: 46px; left: 56px;  animation-delay: 0s; }
+  .star-2 { top: 30px; left: 130px; animation-delay: 0.8s; font-size: 16px; }
+  .star-3 { top: 50px; right: 62px; animation-delay: 1.4s; font-size: 18px; }
+  @keyframes twinkle {
+    from { opacity: 1; transform: scale(1) rotate(-5deg); }
+    to   { opacity: 0.55; transform: scale(0.85) rotate(8deg); }
+  }
+
+  /* SVG Family Group */
+  .family-svg { width: 310px; position: absolute; bottom: 0; }
+
+  /* ── Heading ── */
+  .welcome-heading {
+    font-size: 26px;
+    font-weight: 900;
+    color: #1a1a2e;
+    text-align: center;
+    margin-top: 10px;
+    letter-spacing: -0.3px;
+  }
+  .welcome-sub {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #555577;
+    text-align: center;
+    line-height: 1.55;
+    margin-top: 6px;
+    padding: 0 10px;
+  }
+
+  /* ── Feature Card ── */
+  .feature-card {
+    background: #ddd8f8;
+    border-radius: 22px;
+    width: 100%;
+    padding: 20px 20px 18px;
+    margin-top: 18px;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .feature-card-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #1a1a2e;
+    line-height: 1.3;
+    max-width: 200px;
+  }
+  .icon-row { display: flex; gap: 12px; align-items: center; }
+
+  .icon-btn {
+    width: 52px; height: 52px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,.1);
+    transition: transform .18s;
+    cursor: pointer;
+  }
+  .icon-btn:hover { transform: scale(1.08); }
+  .icon-btn svg { width: 24px; height: 24px; }
+
+  /* Chick mascot on card */
+  .chick-mascot {
+    position: absolute;
+    right: 12px;
+    bottom: 10px;
+    width: 90px;
+    pointer-events: none;
+  }
+
+  /* Sparkle dots on card */
+  .sparkle {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.7;
+  }
+  .sp1 { top: 14px; right: 110px; }
+  .sp2 { top: 34px; right: 94px;  width: 4px; height: 4px; }
+  .sp3 { top: 50px; right: 130px; width: 4px; height: 4px; }
+
+  /* ── Pagination Dots ── */
+  .dots {
+    display: flex; gap: 7px;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #b8b0e0;
+    transition: all .25s;
+  }
+  .dot.active {
+    width: 22px;
+    border-radius: 5px;
+    background: #6d28d9;
+  }
+
+  /* ── CTA Button ── */
+  .btn-primary {
+    margin-top: 22px;
+    width: 100%;
+    padding: 18px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(109,40,217,.4);
+    transition: transform .18s, box-shadow .18s;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(109,40,217,.5);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* Sign-in link */
+  .signin-row {
+    margin-top: 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #666688;
+  }
+  .signin-row a { color: #6d28d9; text-decoration: none; font-weight: 800; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Dynamic Island -->
+  <div class="island"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <!-- Signal -->
+      <svg width="17" height="12" viewBox="0 0 17 12">
+        <rect x="0"  y="8" width="3" height="4" rx="1"/>
+        <rect x="4"  y="5" width="3" height="7" rx="1"/>
+        <rect x="8"  y="2" width="3" height="10" rx="1"/>
+        <rect x="12" y="0" width="3" height="12" rx="1"/>
+      </svg>
+      <!-- WiFi -->
+      <svg width="16" height="12" viewBox="0 0 16 12">
+        <path d="M8 9.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/>
+        <path d="M3.5 6.5C4.9 5.1 6.4 4.5 8 4.5s3.1.6 4.5 2" stroke="#1a1a2e" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M1 3.5C3.2 1.3 5.5 0 8 0s4.8 1.3 7 3.5" stroke="#1a1a2e" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      </svg>
+      <!-- Battery -->
+      <svg width="26" height="12" viewBox="0 0 26 12">
+        <rect x="0" y="1" width="22" height="10" rx="3" stroke="#1a1a2e" stroke-width="1.4" fill="none"/>
+        <rect x="1.5" y="2.5" width="17" height="7" rx="1.5" fill="#1a1a2e"/>
+        <path d="M23 4v4" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Screen -->
+  <div class="screen">
+
+    <!-- Logo -->
+    <div class="logo-row">
+      <div class="logo-icon">🐣</div>
+      <span class="logo-text">PikuAI</span>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero-area">
+      <!-- Clouds -->
+      <div class="cloud cloud-l"></div>
+      <div class="cloud cloud-r"></div>
+      <!-- Stars -->
+      <span class="star star-1">⭐</span>
+      <span class="star star-2">✦</span>
+      <span class="star star-3">✦</span>
+
+      <!-- Family SVG illustration -->
+      <svg class="family-svg" viewBox="0 0 310 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- Ground/base cloud -->
+        <ellipse cx="155" cy="210" rx="130" ry="18" fill="white" opacity="0.6"/>
+
+        <!-- ===== MOM (left) ===== -->
+        <!-- Body -->
+        <path d="M52 170 Q48 155 55 145 Q62 135 75 138 Q88 140 90 155 L92 175 Z" fill="#c084fc"/>
+        <!-- Neck -->
+        <rect x="68" y="122" width="14" height="18" rx="7" fill="#fcd9b0"/>
+        <!-- Head -->
+        <ellipse cx="75" cy="108" rx="22" ry="24" fill="#fcd9b0"/>
+        <!-- Hair -->
+        <path d="M55 100 Q54 80 75 78 Q96 76 97 95 Q98 108 93 116 Q88 106 85 102 Q80 88 75 90 Q65 92 62 104 Z" fill="#2d1a0a"/>
+        <path d="M55 100 Q52 115 55 128 Q58 118 62 112 Z" fill="#2d1a0a"/>
+        <path d="M97 95 Q99 108 95 118 Q93 110 91 105 Z" fill="#2d1a0a"/>
+        <!-- Long hair strands -->
+        <path d="M55 105 Q50 130 52 155 Q56 148 58 140 Q57 125 60 115 Z" fill="#2d1a0a"/>
+        <!-- Eyes -->
+        <ellipse cx="68" cy="108" rx="4" ry="4.5" fill="white"/>
+        <ellipse cx="82" cy="108" rx="4" ry="4.5" fill="white"/>
+        <circle cx="69" cy="109" r="2.5" fill="#2d1a0a"/>
+        <circle cx="83" cy="109" r="2.5" fill="#2d1a0a"/>
+        <circle cx="70" cy="108" r="1" fill="white"/>
+        <circle cx="84" cy="108" r="1" fill="white"/>
+        <!-- Smile -->
+        <path d="M69 117 Q75 122 81 117" stroke="#e07070" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Cheeks -->
+        <ellipse cx="62" cy="115" rx="5" ry="3" fill="#f9a8d4" opacity="0.5"/>
+        <ellipse cx="88" cy="115" rx="5" ry="3" fill="#f9a8d4" opacity="0.5"/>
+        <!-- Left arm reaching -->
+        <path d="M52 155 Q38 160 34 175 Q42 178 50 172 Q55 165 60 158 Z" fill="#c084fc"/>
+        <ellipse cx="33" cy="177" rx="7" ry="5" fill="#fcd9b0"/>
+
+        <!-- ===== DAUGHTER (front-center-left) ===== -->
+        <!-- Body -->
+        <path d="M115 185 Q110 168 118 158 Q126 148 137 150 Q148 152 149 165 L152 185 Z" fill="#f472b6"/>
+        <!-- Neck -->
+        <rect x="128" y="138" width="11" height="14" rx="5.5" fill="#fcd9b0"/>
+        <!-- Head -->
+        <ellipse cx="133" cy="126" rx="18" ry="19" fill="#fcd9b0"/>
+        <!-- Hair -->
+        <path d="M117 120 Q116 104 133 102 Q150 100 151 116 Q152 126 148 132 Q144 122 140 118 Q136 108 133 110 Q124 111 121 120 Z" fill="#5c3010"/>
+        <!-- Eyes -->
+        <ellipse cx="127" cy="126" rx="3.5" ry="4" fill="white"/>
+        <ellipse cx="139" cy="126" rx="3.5" ry="4" fill="white"/>
+        <circle cx="128" cy="127" r="2.2" fill="#2d1a0a"/>
+        <circle cx="140" cy="127" r="2.2" fill="#2d1a0a"/>
+        <circle cx="129" cy="126" r="0.9" fill="white"/>
+        <circle cx="141" cy="126" r="0.9" fill="white"/>
+        <!-- Smile -->
+        <path d="M127 134 Q133 138 139 134" stroke="#e07070" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        <!-- Cheeks -->
+        <ellipse cx="121" cy="131" rx="4" ry="2.5" fill="#f9a8d4" opacity="0.55"/>
+        <ellipse cx="145" cy="131" rx="4" ry="2.5" fill="#f9a8d4" opacity="0.55"/>
+        <!-- Small arms -->
+        <path d="M110 170 Q100 172 96 180 Q103 184 110 180 Q114 175 118 168 Z" fill="#f472b6"/>
+        <ellipse cx="95" cy="181" rx="5.5" ry="4" fill="#fcd9b0"/>
+
+        <!-- ===== SON (center) ===== -->
+        <!-- Body -->
+        <path d="M158 185 Q154 166 162 155 Q170 144 182 145 Q195 146 197 160 L200 185 Z" fill="#fde047"/>
+        <!-- Neck -->
+        <rect x="174" y="131" width="13" height="16" rx="6" fill="#fcd9b0"/>
+        <!-- Head -->
+        <ellipse cx="180" cy="118" rx="20" ry="21" fill="#fcd9b0"/>
+        <!-- Hair -->
+        <path d="M162 112 Q161 96 180 94 Q200 92 200 108 Q201 120 197 126 Q193 114 189 110 Q184 100 180 102 Q170 103 167 112 Z" fill="#5c3010"/>
+        <!-- Eyes open wide / happy -->
+        <ellipse cx="173" cy="118" rx="4" ry="4.5" fill="white"/>
+        <ellipse cx="187" cy="118" rx="4" ry="4.5" fill="white"/>
+        <circle cx="174" cy="119" r="2.8" fill="#2d1a0a"/>
+        <circle cx="188" cy="119" r="2.8" fill="#2d1a0a"/>
+        <circle cx="175" cy="118" r="1.1" fill="white"/>
+        <circle cx="189" cy="118" r="1.1" fill="white"/>
+        <!-- Big smile -->
+        <path d="M172 127 Q180 133 188 127" stroke="#e07070" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Cheeks -->
+        <ellipse cx="166" cy="123" rx="5" ry="3" fill="#f9a8d4" opacity="0.5"/>
+        <ellipse cx="194" cy="123" rx="5" ry="3" fill="#f9a8d4" opacity="0.5"/>
+
+        <!-- ===== DAD (right) ===== -->
+        <!-- Body -->
+        <path d="M218 172 Q214 155 222 144 Q230 133 244 135 Q258 136 260 151 L264 175 Z" fill="#5eead4"/>
+        <!-- Neck -->
+        <rect x="235" y="120" width="16" height="17" rx="8" fill="#fcd9b0"/>
+        <!-- Head -->
+        <ellipse cx="243" cy="106" rx="23" ry="24" fill="#fcd9b0"/>
+        <!-- Hair short -->
+        <path d="M222 98 Q222 80 243 78 Q264 76 265 94 Q266 104 260 112 Q256 100 250 96 Q243 88 243 92 Q234 90 230 98 Z" fill="#5c3010"/>
+        <!-- Eyes -->
+        <ellipse cx="235" cy="106" rx="4.5" ry="5" fill="white"/>
+        <ellipse cx="251" cy="106" rx="4.5" ry="5" fill="white"/>
+        <circle cx="236" cy="107" r="3" fill="#2d1a0a"/>
+        <circle cx="252" cy="107" r="3" fill="#2d1a0a"/>
+        <circle cx="237" cy="106" r="1.2" fill="white"/>
+        <circle cx="253" cy="106" r="1.2" fill="white"/>
+        <!-- Smile -->
+        <path d="M235 116 Q243 122 251 116" stroke="#e07070" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Cheeks -->
+        <ellipse cx="228" cy="112" rx="6" ry="3.5" fill="#f9a8d4" opacity="0.45"/>
+        <ellipse cx="258" cy="112" rx="6" ry="3.5" fill="#f9a8d4" opacity="0.45"/>
+        <!-- Right arm on robot -->
+        <path d="M262 155 Q274 152 278 162 Q272 168 264 164 Q260 160 258 155 Z" fill="#5eead4"/>
+        <ellipse cx="279" cy="163" rx="7" ry="5.5" fill="#fcd9b0"/>
+
+        <!-- ===== ROBOT (far right) ===== -->
+        <!-- Robot body -->
+        <rect x="272" y="160" width="36" height="44" rx="10" fill="#e2e8f0"/>
+        <rect x="276" y="164" width="28" height="18" rx="5" fill="#bfdbfe" opacity="0.7"/>
+        <!-- Chest light -->
+        <circle cx="290" cy="188" r="5" fill="#6ee7f7"/>
+        <circle cx="290" cy="188" r="3" fill="#22d3ee"/>
+        <!-- Arms -->
+        <rect x="264" y="162" width="10" height="22" rx="5" fill="#cbd5e1"/>
+        <rect x="306" y="162" width="10" height="22" rx="5" fill="#cbd5e1"/>
+        <!-- Hands -->
+        <ellipse cx="269" cy="185" rx="6" ry="5" fill="#94a3b8"/>
+        <ellipse cx="311" cy="185" rx="6" ry="5" fill="#94a3b8"/>
+        <!-- Neck -->
+        <rect x="283" y="148" width="14" height="14" rx="5" fill="#cbd5e1"/>
+        <!-- Head -->
+        <rect x="268" y="122" width="44" height="30" rx="12" fill="#e2e8f0"/>
+        <!-- Eyes (glowing screens) -->
+        <rect x="273" y="128" width="14" height="14" rx="4" fill="#1e3a5f"/>
+        <rect x="293" y="128" width="14" height="14" rx="4" fill="#1e3a5f"/>
+        <!-- Eye glow -->
+        <ellipse cx="280" cy="135" rx="5" ry="4.5" fill="#38bdf8" opacity="0.9"/>
+        <ellipse cx="300" cy="135" rx="5" ry="4.5" fill="#38bdf8" opacity="0.9"/>
+        <ellipse cx="280" cy="135" rx="2.5" ry="2.5" fill="white" opacity="0.6"/>
+        <ellipse cx="300" cy="135" rx="2.5" ry="2.5" fill="white" opacity="0.6"/>
+        <!-- Antenna -->
+        <line x1="290" y1="122" x2="290" y2="110" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="290" cy="107" r="5" fill="#38bdf8"/>
+        <circle cx="290" cy="107" r="2.5" fill="white" opacity="0.7"/>
+        <!-- Ear bolts -->
+        <circle cx="268" cy="137" r="4" fill="#94a3b8"/>
+        <circle cx="312" cy="137" r="4" fill="#94a3b8"/>
+      </svg>
+    </div>
+
+    <!-- Heading -->
+    <h1 class="welcome-heading">Welcome, Parents! 👋</h1>
+    <p class="welcome-sub">PikuAI is a safe space where kids can<br>ask, learn and explore with confidence.</p>
+
+    <!-- Feature Card -->
+    <div class="feature-card">
+      <span class="sparkle sp1"></span>
+      <span class="sparkle sp2"></span>
+      <span class="sparkle sp3"></span>
+
+      <p class="feature-card-title">Voice and text chat<br>for your curious kids</p>
+
+      <div class="icon-row">
+        <!-- Mic button -->
+        <div class="icon-btn" aria-label="Voice chat">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="2" width="6" height="11" rx="3" fill="#3b82f6"/>
+            <path d="M5 11a7 7 0 0014 0" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+            <line x1="12" y1="18" x2="12" y2="22" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+            <line x1="9"  y1="22" x2="15" y2="22" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <!-- Chat button -->
+        <div class="icon-btn" aria-label="Text chat">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H4a2 2 0 00-2 2v13a2 2 0 002 2h3l2.5 3 2.5-3H20a2 2 0 002-2V4a2 2 0 00-2-2z" fill="#7c3aed"/>
+            <circle cx="8"  cy="11" r="1.5" fill="white"/>
+            <circle cx="12" cy="11" r="1.5" fill="white"/>
+            <circle cx="16" cy="11" r="1.5" fill="white"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Chick mascot SVG -->
+      <svg class="chick-mascot" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+        <!-- Egg / shell bottom -->
+        <ellipse cx="45" cy="75" rx="28" ry="16" fill="white"/>
+        <path d="M17 72 Q20 88 45 90 Q70 88 73 72 L68 68 Q60 78 45 78 Q30 78 22 68 Z" fill="#f1f5f9"/>
+        <!-- Cracks on shell -->
+        <path d="M32 68 L28 62 L34 64 L30 56" stroke="#e2e8f0" stroke-width="1.5" fill="none"/>
+        <path d="M58 68 L62 62 L56 64 L60 56" stroke="#e2e8f0" stroke-width="1.5" fill="none"/>
+        <!-- Body (chick) -->
+        <ellipse cx="45" cy="58" rx="22" ry="22" fill="#fde047"/>
+        <!-- Wing left -->
+        <ellipse cx="26" cy="62" rx="10" ry="7" fill="#fbbf24" transform="rotate(-20 26 62)"/>
+        <!-- Wing right -->
+        <ellipse cx="64" cy="62" rx="10" ry="7" fill="#fbbf24" transform="rotate(20 64 62)"/>
+        <!-- Eyes -->
+        <ellipse cx="38" cy="52" rx="5" ry="5.5" fill="#1a1a2e"/>
+        <ellipse cx="52" cy="52" rx="5" ry="5.5" fill="#1a1a2e"/>
+        <circle cx="39.5" cy="50.5" r="2" fill="white"/>
+        <circle cx="53.5" cy="50.5" r="2" fill="white"/>
+        <!-- Beak -->
+        <path d="M41 60 Q45 65 49 60 L45 63 Z" fill="#f97316"/>
+        <!-- Cheeks -->
+        <ellipse cx="31" cy="58" rx="5" ry="3" fill="#fca5a5" opacity="0.6"/>
+        <ellipse cx="59" cy="58" rx="5" ry="3" fill="#fca5a5" opacity="0.6"/>
+        <!-- Tuft on head -->
+        <path d="M40 38 Q43 30 45 36 Q47 28 50 36 Q52 30 54 37" stroke="#fbbf24" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Feet -->
+        <path d="M38 78 L34 85 M38 78 L38 85 M38 78 L42 85" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+        <path d="M52 78 L48 85 M52 78 L52 85 M52 78 L56 85" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- Dots -->
+    <div class="dots" role="tablist" aria-label="Onboarding progress">
+      <span class="dot active" role="tab" aria-selected="true"></span>
+      <span class="dot" role="tab"></span>
+      <span class="dot" role="tab"></span>
+      <span class="dot" role="tab"></span>
+      <span class="dot" role="tab"></span>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn-primary" onclick="alert('Parent setup flow starting…')">
+      Start Parent Setup
+    </button>
+
+    <p class="signin-row">Already have an account? <a href="#">Sign in</a></p>
+
+  </div><!-- /screen -->
+</div><!-- /phone -->
+
+</body>
+</html>
