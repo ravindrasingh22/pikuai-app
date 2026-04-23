@@ -10,8 +10,8 @@ export function WelcomeScreen({ navigate }: { navigate: Navigate }): React.JSX.E
   const scale = Math.min(Math.max(contentWidth / 342, 1), 1.34);
   const tallScale = Math.min(Math.max(height / 844, 0.86), 1.18);
   const compactHeight = height < 820;
-  const heroHeight = Math.min(compactHeight ? 202 : 254, Math.max(172, 192 * scale * Math.min(tallScale, 1.02)));
-  const familyWidth = Math.min(contentWidth * (compactHeight ? 0.86 : 0.94), 430);
+  const heroHeight = Math.min(compactHeight ? 243 : 301, Math.max(207, 230 * scale * Math.min(tallScale, 1.02)));
+  const familyWidth = Math.min(contentWidth * (compactHeight ? 1.04 : 1.13), 500);
   const familyHeight = familyWidth * 0.66;
   const cardHeight = Math.min(compactHeight ? 140 : 168, (compactHeight ? 132 : 146) * scale);
   const fillLargeScreen = height > 760;
@@ -28,7 +28,7 @@ export function WelcomeScreen({ navigate }: { navigate: Navigate }): React.JSX.E
               maxWidth: contentWidth,
               paddingBottom: Math.max(24, 28 * tallScale),
               paddingHorizontal: Math.max(10, 14 * scale),
-              paddingTop: Math.round(topInset * 0.6) + Math.max(2, 3 * tallScale)
+              paddingTop: Math.round((Math.round(topInset * 0.6) + Math.max(2, 3 * tallScale)) * 0.75)
             }
           ]}
         >
@@ -46,7 +46,7 @@ export function WelcomeScreen({ navigate }: { navigate: Navigate }): React.JSX.E
             <View style={[styles.cloudPuff, styles.cloudRightPuffOne]} />
             <View style={[styles.cloudPuff, styles.cloudRightPuffTwo]} />
           </View>
-          <Text style={[styles.star, styles.starOne, { fontSize: 22 * scale }]}>⭐</Text>
+          <Text style={[styles.star, styles.starOne, { fontSize: 24 * scale }]}>✦</Text>
           <Text style={[styles.star, styles.starTwo, { fontSize: 16 * scale }]}>✦</Text>
           <Text style={[styles.star, styles.starThree, { fontSize: 18 * scale }]}>✦</Text>
           <Image source={pikuImages.welcomeFamily} style={[styles.family, { height: familyHeight, width: familyWidth }]} resizeMode="contain" />
@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     marginTop: 12
   },
   family: {
+    alignSelf: "center",
     bottom: 0,
     height: 218,
     position: "absolute",
@@ -266,7 +267,7 @@ const styles = StyleSheet.create({
     fontWeight: "600"
   },
   heroArea: {
-    alignItems: "flex-end",
+    alignItems: "center",
     height: 230,
     justifyContent: "center",
     marginBottom: -6,
@@ -365,20 +366,19 @@ const styles = StyleSheet.create({
   },
   star: {
     color: "#facc15",
+    fontWeight: "900",
+    lineHeight: 28,
     position: "absolute"
   },
   starOne: {
-    fontSize: 22,
-    left: 56,
-    top: 46
+    left: 54,
+    top: 48
   },
   starThree: {
-    fontSize: 18,
     right: 62,
     top: 50
   },
   starTwo: {
-    fontSize: 16,
     left: 130,
     top: 30
   },

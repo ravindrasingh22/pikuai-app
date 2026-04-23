@@ -42,6 +42,10 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>PikuAI uses the microphone so your child can ask questions by voice.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>PikuAI uses speech recognition to turn your child's voice into text before sending it safely.</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>

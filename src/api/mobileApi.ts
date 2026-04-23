@@ -88,6 +88,7 @@ export function createChildProfile(input: {
   ageBand: string;
   dailyTimeLimitMinutes: number;
   avatarKey?: string;
+  gender?: string;
   voiceEnabled?: boolean;
 }): Promise<ChildProfile> {
   return api.post("/children", {
@@ -95,7 +96,24 @@ export function createChildProfile(input: {
     age_band: input.ageBand,
     daily_time_limit_minutes: input.dailyTimeLimitMinutes,
     avatar_key: input.avatarKey ?? "kid",
+    gender: input.gender ?? "not_disclosed",
     voice_enabled: input.voiceEnabled ?? true
+  });
+}
+
+export function updateChildProfile(childId: string, input: {
+  displayName: string;
+  ageBand: string;
+  dailyTimeLimitMinutes: number;
+  avatarKey?: string;
+  gender?: string;
+}): Promise<ChildProfile> {
+  return api.patch(`/children/${childId}`, {
+    display_name: input.displayName.trim(),
+    age_band: input.ageBand,
+    daily_time_limit_minutes: input.dailyTimeLimitMinutes,
+    avatar_key: input.avatarKey ?? "kid",
+    gender: input.gender ?? "not_disclosed"
   });
 }
 
@@ -124,6 +142,7 @@ export async function sendChildMessage(input: {
   threadId?: string;
   message: string;
   answerMode?: string;
+  inputMode?: "text" | "voice";
 }): Promise<{
   thread_id: string;
   message_id: string;
@@ -138,6 +157,7 @@ export async function sendChildMessage(input: {
     thread_id_optional: input.threadId,
     message: input.message,
     answer_mode_optional: input.answerMode ?? "short_answer",
+    input_mode_optional: input.inputMode ?? "text",
     language_optional: "en"
   });
 }

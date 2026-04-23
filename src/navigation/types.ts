@@ -1,4 +1,4 @@
-import type { ChildProfile } from "../types/domain";
+import type { ChildProfile, VoiceExchange } from "../types/domain";
 
 export type AppRoute =
   | "welcome"
@@ -25,4 +25,10 @@ export type NavigationParams = {
   child?: ChildProfile;
   protectedRoute?: AppRoute;
   resetHistory?: boolean;
+  voiceExchange?: VoiceExchange;
+  voiceExchanges?: VoiceExchange[];
+  voiceThread?: {
+    localThreadId: string;
+    threadId?: string;
+  };
 };

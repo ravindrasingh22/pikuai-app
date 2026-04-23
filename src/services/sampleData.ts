@@ -10,9 +10,9 @@ export const sampleParent: ParentProfile = {
 };
 
 export const sampleChildren: ChildProfile[] = [
-  { id: "anaya", display_name: "Anaya", age_band: "5-7", daily_time_limit_minutes: 30, voice_enabled: true, avatar_key: "girl", child_pin_enabled: false },
-  { id: "vihaan", display_name: "Vihaan", age_band: "8-10", daily_time_limit_minutes: 40, voice_enabled: true, avatar_key: "boy", child_pin_enabled: true },
-  { id: "meera", display_name: "Meera", age_band: "11-12", daily_time_limit_minutes: 45, voice_enabled: true, avatar_key: "girl", child_pin_enabled: false }
+  { id: "anaya", display_name: "Anaya", age_band: "6-8", daily_time_limit_minutes: 30, voice_enabled: true, avatar_key: "girl", gender: "girl", child_pin_enabled: false },
+  { id: "vihaan", display_name: "Vihaan", age_band: "9-11", daily_time_limit_minutes: 40, voice_enabled: true, avatar_key: "boy", gender: "boy", child_pin_enabled: true },
+  { id: "meera", display_name: "Meera", age_band: "11-13", daily_time_limit_minutes: 45, voice_enabled: true, avatar_key: "girl", gender: "not_disclosed", child_pin_enabled: false }
 ];
 
 export const sampleOverview: DashboardOverview = {

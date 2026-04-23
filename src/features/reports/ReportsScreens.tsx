@@ -102,7 +102,7 @@ export function TranscriptsScreen({ transcripts, childrenProfiles }: { transcrip
                           <Text style={styles.body}>No messages in this thread yet.</Text>
                         ) : (
                           thread.messages.slice(0, 2).map((message) => (
-                            <Text key={message.id} style={styles.body}>{message.sender_type}: {message.rendered_text}</Text>
+                            <Text key={message.id} style={message.input_mode === "voice" ? styles.voiceTranscriptBody : styles.body}>{message.sender_type}: {message.rendered_text}</Text>
                           ))
                         )}
                       </View>
@@ -201,6 +201,11 @@ const styles = StyleSheet.create({
   },
   messagePreviewWrap: {
     marginTop: spacing.xs
+  },
+  voiceTranscriptBody: {
+    ...typography.body,
+    color: colors.textSoft,
+    fontStyle: "italic"
   },
   threadTitle: {
     ...typography.body,

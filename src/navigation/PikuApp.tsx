@@ -15,7 +15,7 @@ import { SettingsScreen } from "../features/settings/SettingsScreen";
 import { VoiceChatScreen } from "../features/voiceChat/VoiceChatScreen";
 import { sampleChildren, sampleControls, sampleOverview, sampleParent, sampleReports, sampleTranscripts } from "../services/sampleData";
 import { colors, spacing, typography } from "../theme/tokens";
-import type { ChildProfile } from "../types/domain";
+import type { ChildProfile, VoiceExchange } from "../types/domain";
 import type { AppRoute, Navigate, NavigationParams } from "./types";
 
 const authRoutes = new Set<AppRoute>(["welcome", "login", "register", "parentPinSetup"]);
@@ -30,6 +30,8 @@ export function PikuApp(): React.JSX.Element {
   const [pendingParentRoute, setPendingParentRoute] = useState<AppRoute>("dashboard");
   const [pinGateReturnRoute, setPinGateReturnRoute] = useState<AppRoute>("childPicker");
   const [selectedChild, setSelectedChild] = useState<ChildProfile | null>(null);
+  const [pendingVoiceExchanges, setPendingVoiceExchanges] = useState<VoiceExchange[]>([]);
+  const [pendingVoiceThread, setPendingVoiceThread] = useState<{ localThreadId: string; threadId?: string } | null>(null);
   const [snapshot, setSnapshot] = useState<BootstrapSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export function PikuApp(): React.JSX.Element {
       setSnapshot(await loadBootstrap());
     } catch (caught) {
       if (isAuthExpiredError(caught)) {
-        resetToAuth("login");
+        resetToAuth("welcome");
         setError("Your session expired. Please sign in again.");
         return;
       }
@@ -80,8 +82,11 @@ export function PikuApp(): React.JSX.Element {
   }), [snapshot]);
 
   const navigate: Navigate = useCallback((nextRoute, params) => {
-    if (nextRoute === route && !params?.resetHistory && !params?.child) return;
+    if (nextRoute === route && !params?.resetHistory && !params?.child && !params?.voiceExchange && !params?.voiceExchanges && !params?.voiceThread) return;
     if (params?.child) setSelectedChild(params.child);
+    if (params?.voiceExchange) setPendingVoiceExchanges([params.voiceExchange]);
+    if (params?.voiceExchanges) setPendingVoiceExchanges(params.voiceExchanges);
+    if (params?.voiceThread) setPendingVoiceThread(params.voiceThread);
     if (childFullScreenRoutes.has(nextRoute)) {
       setParentAreaLocked(true);
     }
@@ -165,9 +170,36 @@ export function PikuApp(): React.JSX.Element {
   if (route === "register") return <RegisterScreen canGoBack={canGoBack} navigate={navigate} onBack={goBack} />;
   if (route === "parentPinSetup") return <ParentPinSetupScreen canGoBack={canGoBack} navigate={navigate} onAuthenticated={refresh} onBack={goBack} />;
   if (route === "parentPinGate") return <ParentPinGateScreen navigate={navigate} onBack={() => navigate(pinGateReturnRoute, { resetHistory: true })} targetRoute={pendingParentRoute} />;
-  if (route === "childChat" && child) return <ChildChatScreen canGoBack={canGoBack} child={child} navigate={navigate} onBack={goBack} />;
-  if (route === "voiceChat" && child) return <VoiceChatScreen canGoBack={canGoBack} child={child} navigate={navigate} onBack={goBack} />;
-  if (route === "childPin" && child) return <ChildPinScreen canGoBack={canGoBack} child={child} navigate={navigate} onBack={goBack} />;
+  if (route === "childChat" && child) {
+    return (
+      <ChildChatScreen
+        canGoBack={canGoBack}
+        child={child}
+        navigate={navigate}
+        onBack={goBack}
+        onSessionExpired={() => resetToAuth("welcome")}
+        onThreadPersisted={() => void refresh()}
+        onVoiceExchangeConsumed={() => setPendingVoiceExchanges([])}
+        transcriptThreads={data.transcripts}
+        voiceExchanges={pendingVoiceExchanges}
+      />
+    );
+  }
+  if (route === "voiceChat" && child) {
+    return (
+      <VoiceChatScreen
+        canGoBack={canGoBack}
+        child={child}
+        initialLocalThreadId={pendingVoiceThread?.localThreadId}
+        initialThreadId={pendingVoiceThread?.threadId}
+        navigate={navigate}
+        onBack={goBack}
+        onSessionExpired={() => resetToAuth("welcome")}
+        onThreadPersisted={() => void refresh()}
+      />
+    );
+  }
+  if (route === "childPin" && child) return <ChildPinScreen canGoBack={canGoBack} child={child} navigate={navigate} onBack={goBack} onSessionExpired={() => resetToAuth("welcome")} />;
 
   return (
     <AppScaffold

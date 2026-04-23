@@ -1,4 +1,5 @@
-export type AgeBand = "5-7" | "8-10" | "11-12" | "13-16";
+export type AgeBand = "3-5" | "6-8" | "9-11" | "11-13" | "14-17";
+export type ChildGender = "girl" | "boy" | "not_disclosed";
 
 export type ParentProfile = {
   id: string;
@@ -17,6 +18,7 @@ export type ChildProfile = {
   topic_restrictions_json?: string[];
   voice_enabled?: boolean;
   avatar_key?: string;
+  gender?: ChildGender;
   child_pin_enabled?: boolean;
   active_status?: string;
 };
@@ -59,6 +61,8 @@ export type TranscriptThread = {
     rendered_text: string;
     policy_bucket: string;
     explanation_text: string;
+    created_at?: string;
+    input_mode?: "text" | "voice" | null;
   }>;
 };
 
@@ -87,5 +91,15 @@ export type ChatMessage = {
   role: "child" | "assistant";
   text: string;
   time: string;
+  isVoice?: boolean;
   policyBucket?: string;
+};
+
+export type VoiceExchange = {
+  id: string;
+  answerText: string;
+  childText: string;
+  policyBucket?: string;
+  sourceLocalThreadId?: string;
+  threadId?: string;
 };

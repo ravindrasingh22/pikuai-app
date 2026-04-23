@@ -9,11 +9,27 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "plugins": [
+      [
+        "@react-native-voice/voice",
+        {
+          "microphonePermission": "PikuAI uses the microphone so your child can ask questions by voice.",
+          "speechRecognitionPermission": "PikuAI uses speech recognition to turn your child's voice into text before sending it safely."
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.pikuai-app"
+      "bundleIdentifier": "com.anonymous.pikuai-app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "PikuAI uses the microphone so your child can ask questions by voice.",
+        "NSSpeechRecognitionUsageDescription": "PikuAI uses speech recognition to turn your child's voice into text before sending it safely."
+      }
     },
     "android": {
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
       "icon": "./assets/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",

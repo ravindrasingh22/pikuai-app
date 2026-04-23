@@ -4,6 +4,7 @@
   "private": true,
   "main": "expo/AppEntry.js",
   "scripts": {
+    "postinstall": "node scripts/patch-expo-dev-menu.js",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -13,7 +14,10 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
+    "@react-native-voice/voice": "^3.2.4",
     "expo": "~51.0.28",
+    "expo-dev-client": "~4.0.29",
+    "expo-speech": "~12.0.2",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
