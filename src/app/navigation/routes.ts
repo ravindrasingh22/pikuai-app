@@ -1,0 +1,27 @@
+export type RootStackParamList = {
+  Splash: undefined;
+  ParentRegister: undefined;
+  ParentEmailConfirm: undefined;
+  ParentDetails: undefined;
+  ParentOnboarding: undefined;
+  KidRegister: undefined;
+  ParentDashboard: undefined;
+  ParentAnalytics: undefined;
+  AvatarLibrary: undefined;
+  PaymentPlans: undefined;
+  PaymentConfirmation: { planId?: 'monthly' | 'quarterly' | 'annual' } | undefined;
+  ParentAlerts: undefined;
+  ParentAlert: undefined;
+  Login: { mode?: 'kid' | 'parent' } | undefined;
+  ParentFullLogin: undefined;
+  KidOnboarding: undefined;
+  Home: undefined;
+  Chat: { chatId?: string } | undefined;
+  TimerDemo: undefined;
+  About: undefined;
+  Privacy: undefined;
+  Terms: undefined;
+  Team: undefined;
+  Contact: undefined;
+  Support: undefined;
+};

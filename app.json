@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Pratvim",
+    "slug": "pratvim-mobile-app",
+    "scheme": "pratvim",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/images/pratvim-mobile-app-icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/pratvim-mobile-app-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#fbfaf5"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pratvim.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.pratvim.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/pratvim-mobile-app-icon.png",
+        "backgroundColor": "#fbfaf5"
+      }
+    },
+    "assetBundlePatterns": ["assets/images/*", "assets/icons/*", "assets/fonts/*"],
+    "plugins": []
+  }
+}
